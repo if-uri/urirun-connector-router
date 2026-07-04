@@ -1,0 +1,10 @@
+# local.dev.txt — locally developed dependencies of this project (generated 2026-07-04)
+# by ~/github/local.dev.sh — DO NOT EDIT; see ~/github/local.dev.md
+# project: urirun-connector-router 0.2.0 (python) at /home/tom/github/if-uri/urirun-connector-router
+# deps declared: 5 | with local source: 2
+
+## LOCAL DEPS  (dep | required | local source (version) | installed | status)
+urirun | >=0.4.190 | /home/tom/github/if-uri/urirun/adapters/python (0.4.190) | 0.4.190 editable | OK-EDITABLE  [pyproject.toml[connector]]
+urirun-contract | >=0.1.0 | /home/tom/github/if-uri/urirun-contract (0.1.0) | 0.1.0 editable | OK-EDITABLE  [pyproject.toml]
+
+## EXTERNAL DEPS (no local source, 3): build, pytest, twine

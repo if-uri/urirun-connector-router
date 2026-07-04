@@ -1,0 +1,50 @@
+{
+  "id": "router",
+  "name": "Router",
+  "status": "available",
+  "category": "Runtime",
+  "summary": "Diagnose WHERE each URI action runs — before acting.",
+  "description": "router:// is the pre-execution routing layer for urirun. Given an NL-derived plan of URI steps, it answers per step which target runs it (host or a named node), over which path, and whether that target is reachable — naming the failing layer (parse → target → route → reachability → safety) instead of letting an unroutable step fail late. Read-only: the router diagnoses, it never mutates.",
+  "uriSchemes": ["router"],
+  "routes": [
+    "router://host/route/query/resolve",
+    "router://host/plan/query/diagnose",
+    "router://host/mesh/query/targets"
+  ],
+  "useCases": [
+    "Know where every action of an autonomous plan will run before committing.",
+    "Block a doomed plan pre-flight when a step targets a node not in the mesh.",
+    "Diagnose the failing execution layer (target/reachability) instead of an opaque late error."
+  ],
+  "examples": [
+    {
+      "title": "Diagnose an NL plan before executing",
+      "uri": "router://host/plan/query/diagnose",
+      "payload": {
+        "steps": [
+          { "uri": "fs://host/file/query/read" },
+          { "uri": "kvm://lenovo/screen/query/capture" }
+        ],
+        "mesh": { "nodes": [{ "name": "lenovo", "url": "http://192.0.2.1:8765" }] }
+      }
+    }
+  ],
+  "flowExample": [
+    "router://host/plan/query/diagnose"
+  ],
+  "requires": [],
+  "adapterKinds": ["local-function"],
+  "install": {
+    "mode": "urirun-extra",
+    "pipSpec": "urirun-connector-router @ git+https://github.com/if-uri/urirun-connector-router.git@v0.2.0"
+  },
+  "provenance": "first-party",
+  "publisher": {
+    "name": "if-uri",
+    "url": "https://ifuri.com",
+    "github": "https://github.com/if-uri"
+  },
+  "docsUrl": "https://github.com/if-uri/urirun-connector-router",
+  "language": "python",
+  "keywords": ["router", "routing", "uri", "mesh", "diagnose", "pre-flight", "autonomy", "urirun"]
+}

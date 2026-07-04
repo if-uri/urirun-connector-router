@@ -1,0 +1,126 @@
+{
+  "contracts": {
+    "route/query/resolve": {
+      "version": "v1",
+      "effect": "query",
+      "reversible": false,
+      "inp": { "uri": "str", "mesh": "?any", "probe": "?bool" },
+      "out": {
+        "ok": "bool", "connector": "const:router", "action": "const:resolve",
+        "uri": "str", "uriTarget": "str", "runsOn": "?str", "kind": "str", "effect": "str",
+        "route": "?any", "routeUri": "?str", "blockedAt": "?str", "layers": "list"
+      },
+      "errors": ["precondition-unmet", "unreachable"],
+      "examples": [
+        {
+          "payload": { "uri": "kvm://lenovo/screen/query/capture", "mesh": { "nodes": [{ "name": "lenovo", "url": "http://n:8765" }] } },
+          "result": {
+            "ok": true, "connector": "router", "action": "resolve",
+            "uri": "kvm://lenovo/screen/query/capture", "uriTarget": "lenovo",
+            "runsOn": "lenovo", "kind": "node", "effect": "query",
+            "route": null, "routeUri": null, "blockedAt": null,
+            "layers": [
+              { "layer": "parse", "ok": true, "detail": "..." },
+              { "layer": "route", "ok": true, "skipped": true, "detail": "..." }
+            ]
+          }
+        }
+      ]
+    },
+    "plan/query/diagnose": {
+      "version": "v1",
+      "effect": "query",
+      "reversible": false,
+      "inp": { "steps": "?list", "mesh": "?any", "probe": "?bool" },
+      "out": {
+        "ok": "bool", "connector": "const:router", "action": "const:diagnose",
+        "stepCount": "int", "runsOnByStep": "obj", "blockedSteps": "list", "steps": "list"
+      },
+      "errors": ["precondition-unmet", "unreachable"],
+      "examples": [
+        {
+          "payload": { "steps": [{ "uri": "fs://host/file/query/read" }] },
+          "result": {
+            "ok": true, "connector": "router", "action": "diagnose",
+            "stepCount": 1, "runsOnByStep": { "fs://host/file/query/read": "host" },
+            "blockedSteps": [], "steps": []
+          }
+        }
+      ]
+    },
+    "target/query/diagnose": {
+      "version": "v1",
+      "effect": "query",
+      "reversible": false,
+      "inp": { "selectedNodes": "?list", "selectedTargets": "?list", "mesh": "?any", "probe": "?bool" },
+      "out": {
+        "ok": "bool", "connector": "const:router", "action": "const:target-diagnose",
+        "selectedNodes": "list", "selectedTargets": "list", "nodes": "list",
+        "blockedNodes": "list", "remediationClass": "?str", "remediation": "?obj"
+      },
+      "errors": ["precondition-unmet", "unreachable"],
+      "examples": [
+        {
+          "payload": {
+            "selectedNodes": ["lenovo"],
+            "selectedTargets": ["node:lenovo"],
+            "mesh": { "nodes": [{ "name": "lenovo", "url": "http://n:8765", "reachable": true }] }
+          },
+          "result": {
+            "ok": true, "connector": "router", "action": "target-diagnose",
+            "selectedNodes": ["lenovo"], "selectedTargets": ["node:lenovo"],
+            "nodes": [
+              { "node": "lenovo", "ok": true, "status": "ok", "url": "http://n:8765", "remediationClass": null, "layers": [] }
+            ],
+            "blockedNodes": [], "remediationClass": null, "remediation": null
+          }
+        }
+      ]
+    },
+    "plan/query/accept": {
+      "version": "v1",
+      "effect": "query",
+      "reversible": false,
+      "inp": { "steps": "?list", "mesh": "?any", "probe": "?bool" },
+      "out": {
+        "ok": "bool", "connector": "const:router", "action": "const:accept",
+        "accepted": "bool", "report": "obj", "violations": "list"
+      },
+      "errors": ["precondition-unmet", "unreachable"],
+      "examples": [
+        {
+          "payload": { "steps": [{ "uri": "fs://host/file/query/read" }] },
+          "result": {
+            "ok": true, "connector": "router", "action": "accept",
+            "accepted": true,
+            "report": {
+              "stepCount": 1,
+              "runsOnByStep": { "fs://host/file/query/read": "host" },
+              "blockedSteps": [],
+              "steps": []
+            },
+            "violations": []
+          }
+        }
+      ]
+    },
+    "mesh/query/targets": {
+      "version": "v1",
+      "effect": "query",
+      "reversible": false,
+      "inp": { "mesh": "?any" },
+      "out": {
+        "ok": "const:true", "connector": "const:router", "action": "const:targets",
+        "targets": "list", "nodes": "list"
+      },
+      "errors": [],
+      "examples": [
+        {
+          "payload": {},
+          "result": { "ok": true, "connector": "router", "action": "targets", "targets": ["host"], "nodes": [] }
+        }
+      ]
+    }
+  },
+  "wires": []
+}

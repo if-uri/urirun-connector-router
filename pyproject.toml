@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "urirun-connector-router"
+version = "0.2.0"
+description = "Router connector for ifuri and urirun — diagnose WHERE each URI action runs (router://), layer by layer, before acting"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Tom Sapletta", email = "info@softreck.dev" }]
+keywords = ["urirun", "router", "routing", "uri", "mesh", "autonomy", "diagnose"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: System :: Distributed Computing",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+  "urirun-contract>=0.1.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+connector = ["urirun>=0.4.190"]
+dev = ["build>=1", "twine>=5"]
+
+[project.urls]
+Homepage = "https://connect.ifuri.com/connectors/router"
+Repository = "https://github.com/if-uri/urirun-connector-router"
+
+[project.scripts]
+urirun-router = "urirun_connector_router.core:main"
+
+[project.entry-points."urirun.bindings"]
+router = "urirun_connector_router.core:urirun_bindings"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["urirun_connector_router*"]
+
+[tool.setuptools.package-data]
+urirun_connector_router = ["contracts.json"]
