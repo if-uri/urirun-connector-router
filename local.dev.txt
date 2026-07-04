@@ -4,7 +4,7 @@
 # deps declared: 5 | with local source: 2
 
 ## LOCAL DEPS  (dep | required | local source (version) | installed | status)
-urirun | >=0.4.190 | /home/tom/github/if-uri/urirun/adapters/python (0.4.190) | 0.4.190 editable | OK-EDITABLE  [pyproject.toml[connector]]
-urirun-contract | >=0.1.0 | /home/tom/github/if-uri/urirun-contract (0.1.0) | 0.1.0 editable | OK-EDITABLE  [pyproject.toml]
+urirun | >=0.4.190 | /home/tom/github/if-uri/urirun/adapters/python (0.4.190) | 0.4.190 editable @if-uri/venv | OK-EDITABLE  [pyproject.toml[connector]]
+urirun-contract | >=0.1.0 | /home/tom/github/if-uri/urirun-contract (0.1.0) | 0.1.0 editable @if-uri/venv | OK-EDITABLE  [pyproject.toml]
 
 ## EXTERNAL DEPS (no local source, 3): build, pytest, twine
