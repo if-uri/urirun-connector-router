@@ -40,46 +40,32 @@ jobs:
         run: |
           python - <<'PY'
           import json
-
           from urirun_connector_router.core import urirun_bindings
-
           bindings = urirun_bindings()
           text = json.dumps(bindings)
           assert "router://host/doctor/query/report" in text, "safe doctor route missing from bindings"
-
-          forbidden = ['kvm://', 'fs://', 'pdf://', 'browser://', 'http-check://', 'httpcheck://', 'mqtt://', 'github://', 'ocr://', 'camera://', 'usb://', 'adb://', 'node://', 'email://', 'calendar://', 'doc://', 'docid://', 'document://', 'flow://', 'invoice://', 'koru://', 'ksef://', 'linkedin://', 'llm://', 'dns://', 'netscan://', 'task://', 'sheet://', 'smartcrop://', 'data://', 'artifact://', 'check://', 'log://', 'time://', 'twin://', 'urifix://', 'urivision://', 'runtime://', 'vdisplay://', 'view://', 'vql://', 'webnode://', 'youtube://', 'agent://', 'connector://', 'adopt://', 'monitor://', 'device://', 'webcam://']
-          for marker in forbidden:
+          for marker in ['kvm://', 'fs://', 'pdf://', 'browser://', 'http-check://', 'httpcheck://', 'mqtt://', 'github://', 'ocr://', 'camera://', 'usb://', 'adb://', 'node://', 'email://', 'calendar://', 'doc://', 'docid://', 'document://', 'flow://', 'invoice://', 'koru://', 'ksef://', 'linkedin://', 'llm://', 'dns://', 'netscan://', 'task://', 'sheet://', 'smartcrop://', 'data://', 'artifact://', 'check://', 'log://', 'time://', 'twin://', 'urifix://', 'urivision://', 'runtime://', 'vdisplay://', 'view://', 'vql://', 'webnode://', 'youtube://', 'agent://', 'connector://', 'adopt://', 'monitor://', 'device://', 'webcam://']:
               assert marker not in text, f"Unexpected non-current connector route found: {marker}"
-
           print("Connector import and isolated bindings OK")
           PY
 
       - name: Build isolated registry and run safe doctor route
         run: |
           mkdir -p .urirun
-
           python - <<'PY'
           import json
           from pathlib import Path
           from urirun_connector_router.core import urirun_bindings
-
           bindings = urirun_bindings()
           text = json.dumps(bindings)
           assert "router://host/doctor/query/report" in text, "safe doctor route missing"
-          Path(".urirun/router.bindings.v2.json").write_text(
-              json.dumps(bindings, indent=2, sort_keys=True),
-              encoding="utf-8",
-          )
+          Path(".urirun/router.bindings.v2.json").write_text(json.dumps(bindings, indent=2, sort_keys=True), encoding="utf-8")
           PY
-
           urirun compile .urirun/router.bindings.v2.json --out .urirun/router.registry.json
-
-          urirun run             'router://host/doctor/query/report'             .urirun/router.registry.json             --execute             --allow 'router://**'             | tee run-response.json
-
+          urirun run 'router://host/doctor/query/report' .urirun/router.registry.json --execute --allow 'router://**' | tee run-response.json
           python - <<'PY'
           import json
           from pathlib import Path
-
           response = json.loads(Path("run-response.json").read_text(encoding="utf-8"))
           result = response.get("result")
           value = result.get("value", result) if isinstance(result, dict) else result

@@ -52,7 +52,6 @@ jobs:
         run: |
           python - <<'PY'
           from urirun_connector_router.core import urirun_bindings
-
           bindings = urirun_bindings()
           assert "router://host/doctor/query/report" in bindings["bindings"]
           print("Connector import and doctor bindings OK")
@@ -61,23 +60,17 @@ jobs:
       - name: Build isolated registry
         run: |
           mkdir -p .urirun
-
           python - <<'PY'
           import json
           from pathlib import Path
           from urirun_connector_router.core import urirun_bindings
-
           bindings = urirun_bindings()
           out = Path(".urirun/router.bindings.v2.json")
           out.write_text(json.dumps(bindings, indent=2, sort_keys=True), encoding="utf-8")
-
-          text = json.dumps(bindings)
-          assert "router://host/doctor/query/report" in text, "safe doctor route missing"
+          assert "router://host/doctor/query/report" in json.dumps(bindings), "safe doctor route missing"
           print("Wrote isolated bindings:", out)
           PY
-
           urirun compile .urirun/router.bindings.v2.json --out .urirun/router.registry.json
-
           test -s .urirun/router.registry.json
 
       - name: Assert registry contains current connector only
@@ -85,27 +78,20 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-
           registry = json.loads(Path(".urirun/router.registry.json").read_text(encoding="utf-8"))
           text = json.dumps(registry)
-
           assert "router://host/doctor/query/report" in text, "safe doctor route missing from registry"
-
-          forbidden = ['kvm://', 'fs://', 'pdf://', 'browser://', 'http-check://', 'httpcheck://', 'mqtt://', 'github://', 'ocr://', 'camera://', 'usb://', 'adb://', 'node://', 'email://', 'calendar://', 'doc://', 'docid://', 'document://', 'flow://', 'invoice://', 'koru://', 'ksef://', 'linkedin://', 'llm://', 'dns://', 'netscan://', 'task://', 'sheet://', 'smartcrop://', 'data://', 'artifact://', 'check://', 'log://', 'time://', 'twin://', 'urifix://', 'urivision://', 'runtime://', 'vdisplay://', 'view://', 'vql://', 'webnode://', 'youtube://', 'agent://', 'connector://', 'adopt://', 'monitor://', 'device://', 'webcam://']
-          for marker in forbidden:
+          for marker in ['kvm://', 'fs://', 'pdf://', 'browser://', 'http-check://', 'httpcheck://', 'mqtt://', 'github://', 'ocr://', 'camera://', 'usb://', 'adb://', 'node://', 'email://', 'calendar://', 'doc://', 'docid://', 'document://', 'flow://', 'invoice://', 'koru://', 'ksef://', 'linkedin://', 'llm://', 'dns://', 'netscan://', 'task://', 'sheet://', 'smartcrop://', 'data://', 'artifact://', 'check://', 'log://', 'time://', 'twin://', 'urifix://', 'urivision://', 'runtime://', 'vdisplay://', 'view://', 'vql://', 'webnode://', 'youtube://', 'agent://', 'connector://', 'adopt://', 'monitor://', 'device://', 'webcam://']:
               assert marker not in text, f"Unexpected non-current connector route found: {marker}"
-
           print("Registry isolation OK: only current connector routes are present.")
           PY
 
       - name: Run route directly through urirun
         run: |
-          urirun run             'router://host/doctor/query/report'             .urirun/router.registry.json             --execute             --allow 'router://**'             | tee run-response.json
-
+          urirun run 'router://host/doctor/query/report' .urirun/router.registry.json --execute --allow 'router://**' | tee run-response.json
           python - <<'PY'
           import json
           from pathlib import Path
-
           response = json.loads(Path("run-response.json").read_text(encoding="utf-8"))
           result = response.get("result")
           value = result.get("value", result) if isinstance(result, dict) else result
@@ -118,8 +104,7 @@ jobs:
 
       - name: Start urirun node
         run: |
-          nohup urirun node serve             --execute             --host 127.0.0.1             --port 18765             --registry .urirun/router.registry.json             --allow 'router://**'             > urirun-node.log 2>&1 &
-
+          nohup urirun node serve --execute --host 127.0.0.1 --port 18765 --registry .urirun/router.registry.json --allow 'router://**' > urirun-node.log 2>&1 &
           for i in $(seq 1 30); do
             if curl -sf http://127.0.0.1:18765/health; then
               echo "urirun node is healthy"
@@ -127,19 +112,16 @@ jobs:
             fi
             sleep 2
           done
-
           curl -sf http://127.0.0.1:18765/health
           curl -sf http://127.0.0.1:18765/routes | tee routes.json
           grep -q 'router://host/doctor/query/report' routes.json
 
       - name: POST /run smoke test
         run: |
-          curl -sf -X POST http://127.0.0.1:18765/run             -H 'Content-Type: application/json'             -d '{"uri":"router://host/doctor/query/report","mode":"execute","payload":{}}'             | tee node-run-response.json
-
+          curl -sf -X POST http://127.0.0.1:18765/run -H 'Content-Type: application/json' -d '{"uri":"router://host/doctor/query/report","mode":"execute","payload":{}}' | tee node-run-response.json
           python - <<'PY'
           import json
           from pathlib import Path
-
           response = json.loads(Path("node-run-response.json").read_text(encoding="utf-8"))
           result = response.get("result")
           value = result.get("value", result) if isinstance(result, dict) else result
