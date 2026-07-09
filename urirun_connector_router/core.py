@@ -23,11 +23,16 @@ try:
 except ImportError:  # flat-module deploy
     import routing as R  # type: ignore
 
-from . import _urirun_compat
+if _urirun is not None:
+    try:
+        from . import _urirun_compat
+    except ImportError:  # flat-module deploy
+        import _urirun_compat  # type: ignore
+else:
+    _urirun_compat = None
 
 CONNECTOR_ID = "router"
-_HAS_URIRUN_CONNECTOR = _urirun is not None
-conn = _urirun_compat.connector(CONNECTOR_ID, scheme="router") if _HAS_URIRUN_CONNECTOR else None
+conn = _urirun_compat.connector(CONNECTOR_ID, scheme="router") if _urirun_compat is not None else None
 
 _MESH_PATHS = (
     os.path.expanduser("~/.urirun/mesh.json"),
