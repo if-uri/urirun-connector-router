@@ -25,7 +25,7 @@ except ImportError:  # flat-module deploy
 
 CONNECTOR_ID = "router"
 _HAS_URIRUN_CONNECTOR = _urirun is not None and hasattr(_urirun, "connector")
-conn = _urirun.connector(CONNECTOR_ID, scheme="router") if _HAS_URIRUN_CONNECTOR else None
+conn = __urirun_compat.connector(CONNECTOR_ID, scheme="router") if _HAS_URIRUN_CONNECTOR else None
 
 _MESH_PATHS = (
     os.path.expanduser("~/.urirun/mesh.json"),
@@ -157,6 +157,25 @@ def _static_bindings() -> dict[str, Any]:
 
 def urirun_bindings() -> dict[str, Any]:
     return conn.bindings() if conn is not None else _static_bindings()
+
+@conn.handler("router://host/doctor/query/report", isolated=True, meta={"label": "Connector readiness report"})
+def doctor() -> dict[str, Any]:
+    """Return a safe, read-only connector readiness report for CI smoke tests."""
+    return {
+        "ok": True,
+        "connector": CONNECTOR_ID,
+        "version": _connector_version(),
+        "status": "ready",
+    }
+
+
+def _connector_version() -> str:
+    try:
+        from importlib.metadata import version
+
+        return version("urirun-connector-router")
+    except Exception:
+        return "0.1.0"
 
 
 def connector_manifest() -> dict[str, Any]:
